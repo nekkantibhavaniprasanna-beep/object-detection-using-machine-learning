@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Object Detection Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a class="brand" href="/">
+            <span class="brand-icon">AI</span>
+            Object Vision
+        </a>
+        <div class="nav-links">
+            <a href="/image">Image</a>
+            <a href="/video">Video</a>
+            <a href="/webcam">Webcam</a>
+        </div>
+    </nav>
+
+    <main class="page-shell">
+        <section class="hero">
+            <div class="hero-content">
+                <p class="eyebrow">YOLOv8 Powered Detection</p>
+                <h1>AI Object Detection Dashboard</h1>
+                <p class="hero-text">
+                    Upload images, process videos, and test your browser webcam with a polished dashboard built for a college hackathon demo.
+                </p>
+                <div class="hero-actions">
+                    <a class="btn primary" href="/image">Start Detection</a>
+                    <a class="btn secondary" href="/webcam">Open Webcam</a>
+                </div>
+            </div>
+            <div class="hero-panel">
+                <div class="metric-card">
+                    <span>Model</span>
+                    <strong>YOLOv8n</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Modes</span>
+                    <strong>3</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Alerts</span>
+                    <strong>Live</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="feature-grid">
+            <a class="feature-card image-card" href="/image">
+                <div class="feature-icon">IMG</div>
+                <h2>Image Detection</h2>
+                <p>Upload an image, run YOLO detection, view the detected result, and see object counts instantly.</p>
+                <span class="card-link">Open image detection</span>
+            </a>
+
+            <a class="feature-card video-card" href="/video">
+                <div class="feature-icon">VID</div>
+                <h2>Video Detection</h2>
+                <p>Upload a video and watch the processed output directly in the browser with bounding boxes.</p>
+                <span class="card-link">Open video detection</span>
+            </a>
+
+            <a class="feature-card webcam-card" href="/webcam">
+                <div class="feature-icon">CAM</div>
+                <h2>Webcam Detection</h2>
+                <p>Start your browser camera, preview the live feed, and detect objects from the current frame.</p>
+                <span class="card-link">Open webcam detection</span>
+            </a>
+        </section>
+    </main>
+</body>
+</html>

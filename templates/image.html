@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Detection</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a class="brand" href="/">
+            <span class="brand-icon">AI</span>
+            Object Vision
+        </a>
+        <div class="nav-links">
+            <a class="active" href="/image">Image</a>
+            <a href="/video">Video</a>
+            <a href="/webcam">Webcam</a>
+        </div>
+    </nav>
+
+    <main class="page-shell">
+        <section class="page-header">
+            <p class="eyebrow">Image Mode</p>
+            <h1>Image Object Detection</h1>
+            <p>Upload an image and view YOLOv8 detections, total objects, class counts, and alert cards on the same page.</p>
+        </section>
+
+        <section class="workspace-grid">
+            <div class="panel">
+                <h2>Upload Image</h2>
+                <form method="POST" enctype="multipart/form-data" class="upload-form">
+                    <label class="file-box">
+                        <span>Choose image file</span>
+                        <input type="file" name="image" accept="image/*" required>
+                    </label>
+                    <button class="btn primary full-width" type="submit">Run Detection</button>
+                </form>
+
+                {% if message %}
+                    <div class="status-message">{{ message }}</div>
+                {% endif %}
+
+                <div class="summary-card">
+                    <span>Total Detected Objects</span>
+                    <strong>{{ total }}</strong>
+                </div>
+            </div>
+
+            <div class="panel result-panel">
+                <h2>Detected Image</h2>
+                {% if detected_image %}
+                    <img class="result-image" src="{{ detected_image }}" alt="Detected image">
+                {% else %}
+                    <div class="empty-state">Detected image will appear here after upload.</div>
+                {% endif %}
+            </div>
+        </section>
+
+        {% if alerts %}
+            <section class="alert-grid">
+                {% for alert in alerts %}
+                    <div class="alert-card {{ alert.type }}">
+                        <h3>{{ alert.title }}</h3>
+                        <p>{{ alert.message }}</p>
+                    </div>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        <section class="panel">
+            <h2>Object Counts</h2>
+            {% if counts %}
+                <div class="count-grid">
+                    {% for name, count in counts.items() %}
+                        <div class="count-card">
+                            <span>{{ name }}</span>
+                            <strong>{{ count }}</strong>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state compact">No objects detected yet.</div>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>

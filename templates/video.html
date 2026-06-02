@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Detection</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a class="brand" href="/">
+            <span class="brand-icon">AI</span>
+            Object Vision
+        </a>
+        <div class="nav-links">
+            <a href="/image">Image</a>
+            <a class="active" href="/video">Video</a>
+            <a href="/webcam">Webcam</a>
+        </div>
+    </nav>
+
+    <main class="page-shell">
+        <section class="page-header">
+            <p class="eyebrow">Video Mode</p>
+            <h1>Video Object Detection</h1>
+            <p>Upload a video, process it with YOLOv8, and play the converted MP4 result directly in your browser.</p>
+        </section>
+
+        <section class="workspace-grid">
+            <div class="panel">
+                <h2>Upload Video</h2>
+                <form method="POST" enctype="multipart/form-data" class="upload-form">
+                    <label class="file-box">
+                        <span>Choose video file</span>
+                        <input type="file" name="video" accept="video/*" required>
+                    </label>
+                    <button class="btn primary full-width" type="submit">Process Video</button>
+                </form>
+
+                {% if message %}
+                    <div class="status-message">{{ message }}</div>
+                {% endif %}
+
+                <div class="tip-card">
+                    The detected output is converted to MP4 automatically so it can play here.
+                </div>
+            </div>
+
+            <div class="panel result-panel">
+                <h2>Detected Video</h2>
+                {% if detected_video %}
+                    <video class="result-video" controls playsinline preload="metadata">
+                        <source src="{{ detected_video }}" type="video/mp4">
+                        Your browser does not support the HTML5 video tag.
+                    </video>
+                {% else %}
+                    <div class="empty-state">Processed video will appear here after upload.</div>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Detection</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a class="brand" href="/">
+            <span class="brand-icon">AI</span>
+            Object Vision
+        </a>
+        <div class="nav-links">
+            <a href="/image">Image</a>
+            <a href="/video">Video</a>
+            <a class="active" href="/webcam">Webcam</a>
+        </div>
+    </nav>
+
+    <main class="page-shell">
+        <section class="page-header">
+            <p class="eyebrow">Webcam Mode</p>
+            <h1>Browser Webcam Detection</h1>
+            <p>Open your camera inside the browser, stop it anytime, and detect objects from the current frame using YOLOv8.</p>
+        </section>
+
+        <section class="workspace-grid">
+            <div class="panel">
+                <h2>Camera Controls</h2>
+                <div class="button-row">
+                    <button class="btn primary" id="startBtn" type="button">Start Webcam</button>
+                    <button class="btn secondary" id="stopBtn" type="button">Stop Webcam</button>
+                </div>
+                <button class="btn accent full-width" id="detectBtn" type="button">Detect Current Frame</button>
+                <div class="status-message" id="webcamStatus">Camera is currently stopped.</div>
+
+                <div class="summary-card">
+                    <span>Total Detected Objects</span>
+                    <strong id="totalObjects">0</strong>
+                </div>
+            </div>
+
+            <div class="panel result-panel">
+                <h2>Live Webcam Feed</h2>
+                <video class="result-video" id="webcamVideo" autoplay playsinline muted></video>
+                <canvas id="captureCanvas" class="hidden"></canvas>
+            </div>
+        </section>
+
+        <section class="workspace-grid">
+            <div class="panel result-panel">
+                <h2>Detected Frame</h2>
+                <img class="result-image hidden" id="detectedFrame" alt="Detected webcam frame">
+                <div class="empty-state" id="framePlaceholder">Detected webcam frame will appear here.</div>
+            </div>
+
+            <div class="panel">
+                <h2>Object Counts</h2>
+                <div class="alert-grid webcam-alerts" id="alertArea"></div>
+                <div class="count-grid" id="countArea">
+                    <div class="empty-state compact">No webcam detections yet.</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const startBtn = document.getElementById("startBtn");
+        const stopBtn = document.getElementById("stopBtn");
+        const detectBtn = document.getElementById("detectBtn");
+        const video = document.getElementById("webcamVideo");
+        const canvas = document.getElementById("captureCanvas");
+        const statusBox = document.getElementById("webcamStatus");
+        const detectedFrame = document.getElementById("detectedFrame");
+        const framePlaceholder = document.getElementById("framePlaceholder");
+        const countArea = document.getElementById("countArea");
+        const alertArea = document.getElementById("alertArea");
+        const totalObjects = document.getElementById("totalObjects");
+
+        let cameraStream = null;
+
+        startBtn.addEventListener("click", async () => {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = cameraStream;
+                statusBox.textContent = "Camera is running. You can detect the current frame now.";
+            } catch (error) {
+                statusBox.textContent = "Camera permission was blocked or no camera was found.";
+            }
+        });
+
+        stopBtn.addEventListener("click", () => {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+                video.srcObject = null;
+            }
+
+            statusBox.textContent = "Camera is currently stopped.";
+        });
+
+        detectBtn.addEventListener("click", async () => {
+            if (!cameraStream) {
+                statusBox.textContent = "Start the webcam before running detection.";
+                return;
+            }
+
+            statusBox.textContent = "Detecting objects from the current frame...";
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext("2d");
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = canvas.toDataURL("image/jpeg");
+
+            try {
+                const response = await fetch("/webcam-detect", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ image: imageData })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    statusBox.textContent = data.error || "Detection failed.";
+                    return;
+                }
+
+                detectedFrame.src = data.image;
+                detectedFrame.classList.remove("hidden");
+                framePlaceholder.classList.add("hidden");
+                totalObjects.textContent = data.total;
+                renderCounts(data.counts);
+                renderAlerts(data.alerts);
+                statusBox.textContent = "Webcam frame detection completed successfully.";
+            } catch (error) {
+                statusBox.textContent = "Detection request failed. Please try again.";
+            }
+        });
+
+        function renderCounts(counts) {
+            const names = Object.keys(counts);
+
+            if (names.length === 0) {
+                countArea.innerHTML = '<div class="empty-state compact">No objects detected in this frame.</div>';
+                return;
+            }
+
+            countArea.innerHTML = names.map(name => `
+                <div class="count-card">
+                    <span>${name}</span>
+                    <strong>${counts[name]}</strong>
+                </div>
+            `).join("");
+        }
+
+        function renderAlerts(alerts) {
+            if (!alerts || alerts.length === 0) {
+                alertArea.innerHTML = "";
+                return;
+            }
+
+            alertArea.innerHTML = alerts.map(alert => `
+                <div class="alert-card ${alert.type}">
+                    <h3>${alert.title}</h3>
+                    <p>${alert.message}</p>
+                </div>
+            `).join("");
+        }
+    </script>
+</body>
+</html>
