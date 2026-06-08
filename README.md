@@ -27,3 +27,5 @@ project/
 - Real-time webcam detection
 - Better accuracy
 - Support for multiple objects
+
+![Dashboard](images/dashboard.png)
