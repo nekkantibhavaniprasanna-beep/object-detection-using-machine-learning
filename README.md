@@ -28,4 +28,4 @@ project/
 - Better accuracy
 - Support for multiple objects
 
-![Dashboard](images/dashboard.png)
+
