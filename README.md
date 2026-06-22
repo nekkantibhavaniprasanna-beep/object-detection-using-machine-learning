@@ -13,6 +13,7 @@ This project detects objects in images using Machine Learning and Computer Visio
 - Python
 - OpenCV
 - Machine Learning
+- YOLO
 
 ## Project Structure
 project/
