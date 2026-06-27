@@ -30,3 +30,5 @@ project/
 - Support for multiple objects
 
 
+
+Documentation updated.
